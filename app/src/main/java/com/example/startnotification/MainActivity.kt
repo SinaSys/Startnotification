@@ -2,7 +2,10 @@ package com.example.startnotification
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.TaskStackBuilder
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -22,12 +25,22 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         createNotificationChannel()
 
+        //pending intent is use for when we click on notification panel we direct to to application
+        val intent = Intent(this, MainActivity::class.java)
+        //task builder needs api 16 and above
+        val pendingIntent = TaskStackBuilder.create(this).run {
+            addNextIntentWithParentStack(intent)
+            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        }
+
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Awesome notification")
             .setContentText("This is the content text")
             .setSmallIcon(R.drawable.ic_star)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
             .build()
 
         val notificationManager = NotificationManagerCompat.from(this)
@@ -37,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun createNotificationChannel() {
+    private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID, CHANNEL_NAME
